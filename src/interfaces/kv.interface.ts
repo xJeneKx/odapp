@@ -1,3 +1,3 @@
 export interface kvFunction {
-    [key: string]: (...args: any[]) => any
+  [key: string]: (...args: any[]) => any
 }
