@@ -1,3 +1,3 @@
-import Client from "./Client.js";
+import ODappApi from "./modules/odapp-api/odapp-api.service.ts";
 
-export { Client as default }
+export { ODappApi as default };
