@@ -16,8 +16,7 @@ export class HttpAdapter implements BaseAdapter {
   }
 
   async request(data: any): Promise<any> {
-    // ToDo: http or https (?)
-    const result = await fetch(`http://${this.#baseUrl}/request`, {
+    const result = await fetch(`${this.#baseUrl}/request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -15,10 +15,20 @@ import type {
 } from "../../interfaces/client-responses.interface.ts";
 import { NetworkClientService } from "../network-client/network-client.service.ts";
 
+/**
+ * Initializes a new instance of the ODappApiService.
+ *
+ * @param {string} [baseUrl] - The base URL for the network client service.
+ * @param {boolean} [useRestClient] - Optional flag to determine whether to use a REST client. Defaults to false.
+ */
 export default class ODappApiService {
-  networkClientService: NetworkClientService;
+  private networkClientService: NetworkClientService;
 
   constructor(baseUrl: string, useRestClient = false) {
+    if(!baseUrl) {
+      baseUrl = 'http://localhost:3000';
+    }
+    
     this.networkClientService = new NetworkClientService(baseUrl, useRestClient);
   }
 

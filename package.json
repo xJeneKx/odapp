@@ -1,8 +1,21 @@
 {
   "name": "odapp",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
-  "types": "./dist/Client.d.ts",
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/modules/odapp-api/odapp-api.service.d.ts",
+  "main": "./dist/odapp.cjs",
+  "module": "./dist/odapp.js",
+  "exports": {
+    ".": {
+      "types": "./dist/modules/odapp-api/odapp-api.service.d.ts",
+      "browser": "./dist/odapp.js",
+      "import": "./dist/odapp.cjs",
+      "require": "./dist/odapp.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

@@ -20,13 +20,17 @@ export class WebSocketAdapter implements BaseAdapter {
   #tagToHandler: kvFunction = {};
 
   constructor(baseUrl: string) {
+    if (baseUrl.startsWith('http://') || baseUrl.startsWith('https://')) {
+      baseUrl = baseUrl.replace('http://', 'ws://')
+          .replace('https://', 'wss://');
+    }
     this.#baseUrl = baseUrl;
 
     this.#connectWebSocket();
   }
 
   #connectWebSocket() {
-    this.#ws = new WebSocket(`ws://${this.#baseUrl}/ws`);
+    this.#ws = new WebSocket(`${this.#baseUrl}/ws`);
     this.#ws.addEventListener('open', this.#openHandler.bind(this));
     this.#ws.addEventListener('message', this.#messageHandler.bind(this));
     this.#ws.addEventListener('error', (err: { code: string; }) => {
