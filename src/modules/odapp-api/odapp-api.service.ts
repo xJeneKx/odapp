@@ -25,8 +25,12 @@ export default class ODappApiService {
   private networkClientService: NetworkClientService;
 
   constructor(baseUrl: string, useRestClient = false) {
-    if(!baseUrl) {
-      baseUrl = 'http://localhost:3000';
+    if (!baseUrl) {
+      baseUrl = 'https://odapp.aa-dev.net';
+    }
+
+    if (baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1);
     }
     
     this.networkClientService = new NetworkClientService(baseUrl, useRestClient);
