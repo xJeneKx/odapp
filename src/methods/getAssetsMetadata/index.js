@@ -8,6 +8,8 @@ async function getAssetsMetadata(assets) {
 			error: 'arg assets not found or not an array'
 		};
 	}
+
+	assets = assets.filter(asset => asset !== '');
 	
 	if (assets.length === 0) {
 		return [];

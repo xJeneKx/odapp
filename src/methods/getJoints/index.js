@@ -7,6 +7,8 @@ async function getJoints(units) {
 		};
 	}
 
+	units = units.filter(unit => unit !== '');
+
 	if (units.length === 0) {
 		return [];
 	}

@@ -1,10 +1,21 @@
 const db = require('../../services/db');
+const { isValidAddress } = require('ocore/validation_utils');
 
 async function getAAsByBaseAAs(baseAAs) {
 	if (!baseAAs || !Array.isArray(baseAAs)) {
 		return {
 			error: 'arg base_aas not found or not an array'
 		};
+	}
+
+	baseAAs = baseAAs.filter(aa => aa !== '');
+
+	for (let i = 0; i < baseAAs.length; i++) {
+		if (!isValidAddress(baseAAs[i])) {
+			return {
+				error: 'arg base_aas[' + i + '] "' + baseAAs[i] + '" not a valid address'
+			};
+		}
 	}
 	
 	if (baseAAs.length === 0) {

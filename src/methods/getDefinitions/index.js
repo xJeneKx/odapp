@@ -9,6 +9,8 @@ async function getDefinitions(addresses) {
 		};
 	}
 
+	addresses = addresses.filter(address => address !== '');
+
 	if (addresses.length === 0) {
 		return {};
 	}

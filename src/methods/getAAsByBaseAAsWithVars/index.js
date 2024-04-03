@@ -1,5 +1,6 @@
 const db = require('../../services/db');
 const { getAAStateVars } = require('../getAaStateVars');
+const { isValidAddress } = require('ocore/validation_utils');
 
 
 async function getStateVarsWithAA(aa) {
@@ -14,6 +15,16 @@ async function getAAsByBaseAAsWithVars(baseAAs) {
 			error: 'arg base_aas not found or not an array'
 		};
 	}
+
+	baseAAs = baseAAs.filter(aa => aa !== '');
+
+	for (let i = 0; i < baseAAs.length; i++) {
+		if (!isValidAddress(baseAAs[i])) {
+			return {
+				error: 'arg base_aas[' + i + '] "' + baseAAs[i] + '" not a valid address'
+			};
+		}
+	}
 	
 	if (baseAAs.length === 0) {
 		return {};
@@ -21,6 +32,7 @@ async function getAAsByBaseAAsWithVars(baseAAs) {
 	
 	
 	const rows = await db.query('SELECT address, definition, unit, creation_date FROM aa_addresses WHERE base_aa IN(?)', [baseAAs]);
+	console.error(rows, baseAAs);
 	const addresses = rows.map(row => row.address);
 	const stateVarsResult = await Promise.all(addresses.map(address => getStateVarsWithAA(address)));
 	const stateVarsByAA = {};

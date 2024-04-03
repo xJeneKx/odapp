@@ -8,6 +8,8 @@ async function getAssetBySymbols(symbols) {
 			error: 'arg symbols not found or not an array'
 		};
 	}
+
+	symbols = symbols.filter(symbol => symbol !== '');
 	
 	if (symbols.length === 0) {
 		return {};
