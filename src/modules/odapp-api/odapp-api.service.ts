@@ -85,10 +85,21 @@ export default class ODappApiService {
     }) as Promise<BalancesResponse | ErrorResponse>;
   }
 
-  getAAStateVars(aa: string): Promise<StateVarsResponse | ErrorResponse> {
+  getAAsStateVars(aas: string[], startWith?: string, endWith?: string): Promise<StateVarsResponse[] | ErrorResponse> {
+    return this.networkClientService.request({
+      type: 'getAAsStateVars',
+      aas,
+      startWith,
+      endWith,
+    }) as Promise<StateVarsResponse[] | ErrorResponse>;
+  }
+
+  getAAStateVars(aa: string, startWith?: string, endWith?: string): Promise<StateVarsResponse | ErrorResponse> {
     return this.networkClientService.request({
       type: 'getAAStateVars',
       aa,
+      startWith,
+      endWith,
     }) as Promise<StateVarsResponse | ErrorResponse>;
   }
 
