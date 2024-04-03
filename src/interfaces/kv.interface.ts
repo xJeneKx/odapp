@@ -1,3 +1,6 @@
 export interface kvFunction {
-  [key: string]: (...args: any[]) => any
+    [key: string]: {
+        resolve: (...args: any[]) => any,
+        reject: (...args: any[]) => any
+    }
 }

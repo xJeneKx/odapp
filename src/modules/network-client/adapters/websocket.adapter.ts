@@ -55,7 +55,11 @@ export class WebSocketAdapter implements BaseAdapter {
     const id = data.id;
 
     if (this.#tagToHandler[id]) {
-      this.#tagToHandler[id](data.result);
+      if (data.error) {
+        this.#tagToHandler[id].reject(data.error);
+      } else {
+        this.#tagToHandler[id].resolve(data.result);
+      }
 
       delete this.#tagToHandler[id];
     }
@@ -91,15 +95,15 @@ export class WebSocketAdapter implements BaseAdapter {
     if (!ready) {
       // @ts-ignore
       this.#queue.push(msg);
-      return new Promise((resolve) => {
-        this.#tagToHandler[id] = resolve;
+      return new Promise((resolve, reject) => {
+        this.#tagToHandler[id] = { resolve, reject };
       });
     }
 
     this.#ws.send(JSON.stringify(msg));
 
-    return new Promise((resolve) => {
-      this.#tagToHandler[id] = resolve;
+    return new Promise((resolve, reject) => {
+      this.#tagToHandler[id] = { resolve, reject };
     });
   }
 }
