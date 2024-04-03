@@ -6,6 +6,7 @@ const { getDefinitions } = require('./methods/getDefinitions');
 const { getAAsByBaseAAs } = require('./methods/getAAsByBaseAAs');
 const { getAAsByBaseAAsWithVars } = require('./methods/getAAsByBaseAAsWithVars');
 const { getBalances } = require('./methods/getBalances');
+const { getAasStateVars } = require('./methods/getAasStateVars');
 const { getAAStateVars } = require('./methods/getAaStateVars');
 const { getAAStateVar } = require('./methods/getAaStateVar');
 const { getDataFeed } = require('./methods/getDataFeed');
@@ -37,6 +38,8 @@ module.exports = async function (body) {
 		return getAAsByBaseAAsWithVars(body.baseAAs);
 	case 'getBalances':
 		return getBalances(body.addresses);
+	case 'getAAsStateVars':
+		return getAasStateVars(body.aas, body.startsWith, body.endsWith);
 	case 'getAAStateVars':
 		return getAAStateVars(body.aa, body.startsWith, body.endsWith);
 	case 'getAAStateVar':

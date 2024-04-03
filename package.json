@@ -2,7 +2,7 @@
   "name": "odapp-hub",
   "description": "Obyte light-hub",
   "author": "xJeneKx",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "main.js",
   "license": "MIT",
   "scripts": {
