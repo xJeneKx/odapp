@@ -111,7 +111,7 @@ export default class ODappApiService {
     }) as Promise<number | string | boolean | ErrorResponse>;
   }
 
-  getDataFeed(oracles: string[], feedName: string, otherParams: DataFeedParams): Promise<string | number | ErrorResponse> {
+  getDataFeed(oracles: string[], feedName: string, otherParams: DataFeedParams = {}): Promise<string | number | ErrorResponse> {
     return this.networkClientService.request({
       type: 'getDataFeed',
       params: {
