@@ -56,7 +56,7 @@ export class WebSocketAdapter implements BaseAdapter {
 
     if (this.#tagToHandler[id]) {
       if (data.error) {
-        this.#tagToHandler[id].reject(data.error);
+        this.#tagToHandler[id].reject(new Error(data.error));
       } else {
         this.#tagToHandler[id].resolve(data.result);
       }
