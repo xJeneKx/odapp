@@ -64,21 +64,33 @@ export default class ODappApiService {
     }) as Promise<DefinitionsResponse | ErrorResponse>;
   }
 
-  getAAsByBaseAAs(baseAAs: string[]): Promise<AasBasedByAAsResponse[] | ErrorResponse> {
+  getAAsByBaseAAs(baseAAs: string | string[]): Promise<AasBasedByAAsResponse[] | ErrorResponse> {
+    if (typeof baseAAs === 'string') {
+      baseAAs = [baseAAs];
+    }
+
     return this.networkClientService.request({
       type: 'getAAsByBaseAAs',
       baseAAs,
     }) as Promise<AasBasedByAAsResponse[] | ErrorResponse>;
   }
 
-  getAAsByBaseAAsWithVars(baseAAs: string[]): Promise<aasBasedByAAsWithVarsResponse[] | ErrorResponse> {
+  getAAsByBaseAAsWithVars(baseAAs: string | string[]): Promise<aasBasedByAAsWithVarsResponse[] | ErrorResponse> {
+    if (typeof baseAAs === 'string') {
+      baseAAs = [baseAAs];
+    }
+
     return this.networkClientService.request({
       type: 'getAAsByBaseAAsWithVars',
       baseAAs,
     }) as Promise<aasBasedByAAsWithVarsResponse[] | ErrorResponse>;
   }
 
-  getBalances(addresses: string[]): Promise<BalancesResponse | ErrorResponse> {
+  getBalances(addresses: string | string[]): Promise<BalancesResponse | ErrorResponse> {
+    if (typeof addresses === 'string') {
+      addresses = [addresses];
+    }
+
     return this.networkClientService.request({
       type: 'getBalances',
       addresses,
