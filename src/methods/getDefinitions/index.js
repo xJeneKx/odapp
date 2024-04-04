@@ -14,6 +14,8 @@ async function getDefinitions(addresses) {
 	if (addresses.length === 0) {
 		return {};
 	}
+
+	addresses = [...new Set(addresses)];
 	
 	const addressesInCache = {};
 	addresses = addresses.filter(address => {
@@ -31,9 +33,12 @@ async function getDefinitions(addresses) {
 	
 	const result = {};
 	
-	const rows = await db.query('SELECT definition, definition_chash AS address FROM definitions WHERE definition_chash IN(?)' +
-		'UNION SELECT definition, address FROM aa_addresses WHERE address IN (?)', [addresses, addresses]);
-	
+	const rows = await db.query(`
+		SELECT definition, definition_chash AS address FROM definitions WHERE definition_chash IN(${db.In(addresses)})
+		UNION
+		SELECT definition, address FROM aa_addresses WHERE address IN (${db.In(addresses)})
+	`, [...addresses, ...addresses]);
+
 	rows.forEach(row => {
 		result[row.address] = JSON.parse(row.definition);
 	});

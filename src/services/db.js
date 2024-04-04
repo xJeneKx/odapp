@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3');
 const pathToDB = require('ocore/desktop_app.js').getAppDataDir() + '/byteball.sqlite';
 
 const db = new sqlite3.Database(pathToDB, sqlite3.OPEN_READONLY);
+
 function query(sql, params, cb) {
 	if (!cb) {
 		return new Promise((resolve) => {
@@ -17,7 +18,12 @@ function query(sql, params, cb) {
 	});
 }
 
+function In(arr) {
+	return `${arr.map(() => '?').join(',')}`;
+}
+
 module.exports = {
 	query,
+	In,
 	getUnixTimestamp: _db.getUnixTimestamp,
 };

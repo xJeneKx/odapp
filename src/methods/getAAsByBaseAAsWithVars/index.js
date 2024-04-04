@@ -8,7 +8,8 @@ async function getStateVarsWithAA(aa) {
 		aa,
 		stateVars: await getAAStateVars(aa)
 	};
-} 
+}
+
 async function getAAsByBaseAAsWithVars(baseAAs) {
 	if (!baseAAs || !Array.isArray(baseAAs)) {
 		return {
@@ -29,10 +30,10 @@ async function getAAsByBaseAAsWithVars(baseAAs) {
 	if (baseAAs.length === 0) {
 		return {};
 	}
+
+	baseAAs = [...new Set(baseAAs)];
 	
-	
-	const rows = await db.query('SELECT address, definition, unit, creation_date FROM aa_addresses WHERE base_aa IN(?)', [baseAAs]);
-	console.error(rows, baseAAs);
+	const rows = await db.query(`SELECT address, definition, unit, creation_date FROM aa_addresses WHERE base_aa IN(${db.In(baseAAs)})`, [baseAAs]);
 	const addresses = rows.map(row => row.address);
 	const stateVarsResult = await Promise.all(addresses.map(address => getStateVarsWithAA(address)));
 	const stateVarsByAA = {};

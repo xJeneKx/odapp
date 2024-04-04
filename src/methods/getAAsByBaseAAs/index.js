@@ -21,9 +21,11 @@ async function getAAsByBaseAAs(baseAAs) {
 	if (baseAAs.length === 0) {
 		return {};
 	}
+
+	baseAAs = [...new Set(baseAAs)];
 	
 	
-	const rows = await db.query('SELECT address, definition, unit, creation_date FROM aa_addresses WHERE base_aa IN(?)', [baseAAs]);
+	const rows = await db.query(`SELECT address, definition, unit, creation_date FROM aa_addresses WHERE base_aa IN(${db.In(baseAAs)})`, [baseAAs]);
 	
 	return rows.map(row => {
 		return {

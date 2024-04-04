@@ -12,6 +12,8 @@ async function getJoints(units) {
 	if (units.length === 0) {
 		return [];
 	}
+
+	units = [...new Set(units)];
 	
 	return readJoints(units);
 }

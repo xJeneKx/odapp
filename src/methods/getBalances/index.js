@@ -16,10 +16,10 @@ async function getBalances(addresses) {
 		return { error: 'some addresses are not valid' };
 	
 	const rows = await db.query(
-		'SELECT address, asset, is_stable, SUM(amount) AS balance, COUNT(*) AS outputs_count \n\
-		FROM outputs JOIN units USING(unit) \n\
-		WHERE is_spent=0 AND address IN(?) AND sequence=\'good\' \n\
-		GROUP BY address, asset, is_stable', [addresses]);
+		`SELECT address, asset, is_stable, SUM(amount) AS balance, COUNT(*) AS outputs_count
+		FROM outputs JOIN units USING(unit)
+		WHERE is_spent=0 AND address IN(${db.In(addresses)}) AND sequence='good'
+		GROUP BY address, asset, is_stable`, [addresses]);
 	
 	const balances = {};
 	rows.forEach((row) => {

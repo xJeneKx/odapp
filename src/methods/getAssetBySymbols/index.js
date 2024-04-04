@@ -14,6 +14,8 @@ async function getAssetBySymbols(symbols) {
 	if (symbols.length === 0) {
 		return {};
 	}
+
+	symbols = [...new Set(symbols)];
 	
 	const symbolsInCache = {};
 	symbols = symbols.filter(symbol => {

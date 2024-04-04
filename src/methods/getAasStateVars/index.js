@@ -28,7 +28,8 @@ async function getAasStateVars(aas, startsWith, endsWith) {
 	if (aas.length === 0) {
 		return {};
 	}
-	
+
+	aas = [...new Set(aas)];
 
 	const stateVarsResult = await Promise.all(aas.map(address => getStateVarsWithAA(address, startsWith, endsWith)));
 	const stateVarsByAA = {};

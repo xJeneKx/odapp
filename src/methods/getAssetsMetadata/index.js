@@ -14,6 +14,8 @@ async function getAssetsMetadata(assets) {
 	if (assets.length === 0) {
 		return [];
 	}
+
+	assets = [...new Set(assets)];
 	
 	const assetsInCache = {};
 	assets = assets.filter(asset => {
