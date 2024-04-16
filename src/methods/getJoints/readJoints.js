@@ -23,7 +23,7 @@ async function readJoints(units) {
 	const jointsFromKv = await kv.getMany(keys);
 	const objJoints = jointsFromKv.map(JSON.parse);
 	
-	const rows = await db.query('SELECT unit, main_chain_index, ' + db.getUnixTimestamp('creation_date') + ' AS timestamp FROM units WHERE unit IN (?)', [units]);
+	const rows = await db.query('SELECT unit, main_chain_index, ' + db.getUnixTimestamp('creation_date') + ` AS timestamp FROM units WHERE unit IN (${db.In(units)})`, [units]);
 	const objRows = {};
 	rows.forEach(row => {
 		objRows[row.unit] = {

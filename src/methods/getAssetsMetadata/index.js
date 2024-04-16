@@ -32,7 +32,7 @@ async function getAssetsMetadata(assets) {
 		return assetsInCache;
 	
 	
-	const rows = await db.query('SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (?)', [assets]);
+	const rows = await db.query(`SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
 	
 	const rowByUnit = {};
 	
