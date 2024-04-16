@@ -17,6 +17,14 @@ async function getAssetMetadata(asset) {
 		};
 	}
 	
+	if (['base', 'gbyte', 'bytes'].includes(asset.toLowerCase())) {
+		return {
+			asset:	'base',
+			decimals:9,
+			name: 'GBYTE'
+		};
+	}
+	
 	const inCache = assetMetadataCache.getValue(asset);
 	if (inCache) {
 		return inCache;

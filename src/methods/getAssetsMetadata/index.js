@@ -19,6 +19,14 @@ async function getAssetsMetadata(assets) {
 	
 	const assetsInCache = {};
 	assets = assets.filter(asset => {
+		if (['base', 'gbyte', 'bytes'].includes(asset.toLowerCase())) {
+			assetsInCache['base'] = {
+				asset:	'base',
+				decimals:9,
+				name: 'GBYTE'
+			};
+		}
+		
 		const inCache = assetMetadataCache.getValue(asset);
 		if (inCache) {
 			assetsInCache[asset] = inCache;
