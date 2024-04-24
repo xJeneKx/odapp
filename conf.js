@@ -43,4 +43,9 @@ exports.initial_peers = [
 	process.env.testnet ? 'wss://obyte.org/bb-test' : 'wss://obyte.org/bb'
 ];
 
+exports.trustedRegistries = {
+	'AM6GTUKENBYA54FYDAKX2VLENFZIMXWG': { name: 'market' },
+	'O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ': { name: 'DTR', allow_updates: true },
+};
+
 console.log('finished relay conf');
