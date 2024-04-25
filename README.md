@@ -3,10 +3,21 @@
 
 ## Install
 
-Install node.js, clone the repository, then say
+Install node.js, clone the repository, then
+
+### 1 step
+open package.json file and change name to name of the full node
+
+### 2 step
 ```sh
 npm install
+cp .env.mainnet .env
 ```
+
+
+## If you don't have a full node
+open .env file and delete the line "ONLY_API=1"
+
 
 ## Run
 ```sh

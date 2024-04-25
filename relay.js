@@ -7,7 +7,6 @@ require('./asset_metadata.js');
 function replaceConsoleLog(){ 
 	const clog = console.log;
 	console.log = function(){
-		return;
 		Array.prototype.unshift.call(arguments, new Date().toISOString()+':');
 		clog.apply(null, arguments);
 	};

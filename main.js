@@ -1,4 +1,8 @@
-require('./relay.js');
+require('dotenv').config();
+if (!process.env.ONLY_API) {
+	require('./relay.js');
+}
+
 
 const Handler = require('./src/handler.js');
 const fastify = require('fastify')({
@@ -64,7 +68,7 @@ fastify.register(async function (fastify) {
 	}, 60000);
 });
 
-fastify.listen({ port: 3000 }, err => {
+fastify.listen({ port: process.env.WEB_PORT }, err => {
 	if (err) {
 		fastify.log.error(err);
 		process.exit(1);
