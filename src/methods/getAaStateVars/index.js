@@ -7,7 +7,7 @@ async function getAAStateVars(aa, startsWith, endsWith) {
 		};
 	}
 	
-	const vars = await storage.readAAStateVars(aa, startsWith || '', '', 0);
+	const vars = await storage.readAAStateVars(aa, startsWith || '', startsWith || '', 0);
 	
 	if (Object.keys(vars).length === 0) {
 		return {};
