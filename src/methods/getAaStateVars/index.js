@@ -7,28 +7,19 @@ async function getAAStateVars(aa, startsWith, endsWith) {
 		};
 	}
 	
-	const vars = await storage.readAAStateVars(aa);
+	const vars = await storage.readAAStateVars(aa, startsWith || '', '', 0);
 	
 	if (Object.keys(vars).length === 0) {
 		return {};
 	}
 	
-	if (!startsWith && !endsWith) {
+	if (!endsWith) {
 		return vars;
 	}
 	
 	const result = {};
+	
 	for (const key in vars) {
-		if (startsWith && endsWith && key.startsWith(startsWith) && key.endsWith(endsWith)) {
-			result[key] = vars[key];
-			continue;
-		}
-		
-		if (startsWith && key.startsWith(startsWith)) {
-			result[key] = vars[key];
-			continue;
-		}
-		
 		if (endsWith && key.endsWith(endsWith)) {
 			result[key] = vars[key];
 		}
