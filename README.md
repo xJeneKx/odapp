@@ -6,7 +6,7 @@
 Install node.js, clone the repository, then
 
 ### 1 step
-open package.json file and change name to name of the full node
+open package.json file and change name to name of the hub node
 
 ### 2 step
 ```sh
@@ -15,7 +15,7 @@ cp .env.mainnet .env
 ```
 
 
-## If you don't have a full node
+## If you don't have a hub node
 open .env file and delete the line "ONLY_API=1"
 
 
