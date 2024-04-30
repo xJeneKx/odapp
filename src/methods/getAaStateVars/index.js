@@ -1,4 +1,4 @@
-const storage = require('ocore/storage');
+const { readAAStateVars } = require('../../services/stateVars');
 
 async function getAAStateVars(aa, startsWith, endsWith) {
 	if (!aa) {
@@ -7,7 +7,7 @@ async function getAAStateVars(aa, startsWith, endsWith) {
 		};
 	}
 	
-	const vars = await storage.readAAStateVars(aa, startsWith || '', startsWith || '', 0);
+	const vars = await readAAStateVars(aa, startsWith || '', startsWith || '', 0);
 	
 	if (Object.keys(vars).length === 0) {
 		return {};

@@ -1,4 +1,4 @@
-const storage = require('ocore/storage');
+const { readAAStateVar } = require('../../services/stateVars');
 
 async function getAAStateVar(aa, varName) {
 	if (!aa) {
@@ -13,7 +13,7 @@ async function getAAStateVar(aa, varName) {
 		};
 	}
 	
-	const _var = await storage.readAAStateVar(aa, varName);
+	const _var = await readAAStateVar(aa, varName);
 	if (!_var) {
 		return {
 			error: 'var not found'

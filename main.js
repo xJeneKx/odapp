@@ -1,6 +1,8 @@
 require('dotenv').config();
 if (!process.env.ONLY_API) {
 	require('./relay.js');
+} else {
+	require('./mocks');
 }
 
 
