@@ -48,4 +48,7 @@ exports.trustedRegistries = {
 	'O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ': { name: 'DTR', allow_updates: true },
 };
 
+exports.useExternalRelay = !!(process.env.EXTERNAL_RELAY && parseInt(process.env.EXTERNAL_RELAY));
+exports.useSQLiteForAssets = !!(process.env.USE_SQLITE_FOR_ASSETS && parseInt(process.env.USE_SQLITE_FOR_ASSETS));
+
 console.log('finished relay conf');

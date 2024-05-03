@@ -2,18 +2,22 @@
 'use strict';
 const conf = require('ocore/conf.js');
 const eventBus = require('ocore/event_bus.js');
-const network = require('ocore/network.js');
 const storage = require('ocore/storage.js');
 const db = require('ocore/db.js');
 const mail = require('ocore/mail.js');
 const validationUtils = require('ocore/validation_utils.js');
 
 const arrRegistryAddresses = Object.keys(conf.trustedRegistries);
-network.setWatchedAddresses(arrRegistryAddresses);
+const assetsWithMetadata = new Map();
 
-function handlePotentialAssetMetadataUnit(unit, cb) {
+if (!conf.useExternalRelay) {
+	const network = require('ocore/network.js');
+	network.setWatchedAddresses(arrRegistryAddresses);
+}
+
+function handlePotentialAssetMetadataUnit(unit, inMemory = false, cb) {
 	if (!cb)
-		return new Promise(resolve => handlePotentialAssetMetadataUnit(unit, resolve));
+		return new Promise(resolve => handlePotentialAssetMetadataUnit(unit, inMemory, resolve));
 	storage.readJoint(db, unit, {
 		ifNotFound: function(){
 			throw Error('unit '+unit+' not found');
@@ -45,7 +49,7 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				arrAssetMetadataPayloads.push(payload);
 			});
 			if (arrAssetMetadataPayloads.length === 0)
-				return log('no asset metadata payload found');
+				return cb();
 			if (arrAssetMetadataPayloads.length > 1)
 				return log('multiple asset metadata payloads not supported, found '+arrAssetMetadataPayloads.length);
 			let payload = arrAssetMetadataPayloads[0];
@@ -70,13 +74,22 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 							if (rows.length > 0 && !registry.allow_updates)
 								return sendBugEmail('registry '+registry_address+' attempted to register asset '+payload.asset+' again, old name '+rows[0].name+' by '+rows[0].registry_address+', new name '+payload.name);
 							var verb = registry.allow_updates ? 'REPLACE' : 'INSERT';
-							db.query(
-								verb + ' INTO asset_metadata (asset, metadata_unit, registry_address, suffix, name, decimals) VALUES (?,?,?, ?,?,?)', 
-								[payload.asset, unit, registry_address, suffix, payload.name, payload.decimals],
-								() => {
-									cb();
-								}
-							);
+							if (inMemory) {
+								assetsWithMetadata.set(payload.asset, {
+									metadata_unit: unit, 
+									registry_address, 
+									suffix,
+								});
+								cb();
+							} else {
+								db.query(
+									verb + ' INTO asset_metadata (asset, metadata_unit, registry_address, suffix, name, decimals) VALUES (?,?,?, ?,?,?)',
+									[payload.asset, unit, registry_address, suffix, payload.name, payload.decimals],
+									() => {
+										cb();
+									}
+								);
+							}
 						});
 					});
 				});
@@ -86,17 +99,55 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 }
 
 async function scanPastMetadataUnits(){
-	const rows = await db.query('SELECT unit FROM unit_authors WHERE address IN(?) ORDER BY rowid', [arrRegistryAddresses]);
+	const rows = await db.query('SELECT rowid, unit FROM unit_authors WHERE address IN(?) ORDER BY rowid', [arrRegistryAddresses]);
 	let arrUnits = rows.map(row => row.unit);
+
 	for (let unit of arrUnits)
-		await handlePotentialAssetMetadataUnit(unit);
+		await handlePotentialAssetMetadataUnit(unit, true);
+	
+	return rows[rows.length-1].rowid;
 }
 
-eventBus.on('my_transactions_became_stable', async function(arrUnits) {
-	console.log('units that affect watched addresses: '+arrUnits.join(', '));
-	for (let unit of arrUnits)
-		await handlePotentialAssetMetadataUnit(unit);
-});
+async function scanLastMetadataUnits(rowid){
+	const rows = await db.query('SELECT rowid, unit FROM unit_authors WHERE rowid > ? AND address IN(?) ORDER BY rowid', 
+		[rowid, arrRegistryAddresses]);
+	
+	let arrUnits = rows.map(row => row.unit);
 
-//scanPastMetadataUnits();
+	for (let unit of arrUnits)
+		await handlePotentialAssetMetadataUnit(unit, true);
+	
+	return rows.length === 0 ? rowid : rows[rows.length-1].rowid;
+}
+
+async function initInMemory() {
+	console.log('-- init assets with metadata in memory');
+	let rowid = await scanPastMetadataUnits();
+	
+	setInterval(async () => {
+		rowid = await scanLastMetadataUnits(rowid);
+	}, 1000 * 60);
+}
+
+function getAssetMetadataFromMemory(asset) {
+	return assetsWithMetadata.get(asset);
+}
+
+function getAssetsMetadataFromMemory(assets) {
+	return assets.map(asset => assetsWithMetadata.get(asset));
+}
+
+module.exports = {
+	getAssetMetadataFromMemory,
+	getAssetsMetadataFromMemory,
+	initInMemory,
+};
+
+if(!conf.useExternalRelay) {
+	eventBus.on('my_transactions_became_stable', async function (arrUnits) {
+		console.log('units that affect watched addresses: ' + arrUnits.join(', '));
+		for (let unit of arrUnits)
+			await handlePotentialAssetMetadataUnit(unit);
+	});
+}
 

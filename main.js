@@ -1,8 +1,12 @@
-require('dotenv').config();
-if (!process.env.ONLY_API) {
+const conf = require('ocore/conf.js');
+if (!conf.useExternalRelay) {
 	require('./relay.js');
 } else {
 	require('./mocks');
+	
+	if(!conf.useSQLiteForAssets) {
+		require('./src/services/assetMetadata').initInMemory();
+	}
 }
 
 

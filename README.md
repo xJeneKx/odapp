@@ -13,11 +13,16 @@ open package.json file and change name to name of the hub node
 npm install
 cp .env.mainnet .env
 ```
+<br>
 
+> [!IMPORTANT]
+> Before run, read the text below
 
-## If you don't have a hub node
-open .env file and delete the line "ONLY_API=1"
+## If you don't have a Obyte node
+open .env file and change the line to "ONLY_API=0"
 
+## If you are using a [obyte-hub](https://github.com/byteball/obyte-hub)
+open .env file and change the line to "USE_SQLITE_FOR_ASSETS=1"
 
 ## Run
 ```sh

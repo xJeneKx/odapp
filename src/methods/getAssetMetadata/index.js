@@ -1,8 +1,10 @@
+const conf = require('ocore/conf');
 const db = require('../../services/db');
 const constants = require('ocore/constants.js');
 const { isStringOfLength } = require('ocore/validation_utils');
 const { getJoint } = require('../getJoint');
 const assetMetadataCache = require('../../cacheClasses/assetMetadata');
+const { getAssetMetadataFromMemory } = require('../../services/assetMetadata');
 
 async function getAssetMetadata(asset) {
 	if (!asset) {
@@ -30,7 +32,12 @@ async function getAssetMetadata(asset) {
 		return inCache;
 	}
 	
-	const rows = await db.query('SELECT metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset=?', [asset]);
+	let rows;
+	if (conf.useExternalRelay && !conf.useSQLiteForAssets) {
+		rows = [getAssetMetadataFromMemory(asset)];
+	} else {
+		rows = await db.query('SELECT metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset=?', [asset]);
+	}
 	
 	if (rows.length === 0)
 		return { error: 'no metadata' };

@@ -1,6 +1,8 @@
+const conf = require('ocore/conf');
 const db = require('../../services/db');
 const { getJoints } = require('../getJoints');
 const assetMetadataCache = require('../../cacheClasses/assetMetadata');
+const { getAssetsMetadataFromMemory } = require('../../services/assetMetadata');
 
 async function getAssetsMetadata(assets) {
 	if (!assets || !Array.isArray(assets)) {
@@ -40,7 +42,15 @@ async function getAssetsMetadata(assets) {
 		return assetsInCache;
 	
 	
-	const rows = await db.query(`SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
+	let rows;
+	if (conf.useExternalRelay && !conf.useSQLiteForAssets) {
+		rows = getAssetsMetadataFromMemory(assets);
+	} else {
+		rows = await db.query(`SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
+	}
+	
+	if (rows.length === 0)
+		return assetsInCache;
 	
 	const rowByUnit = {};
 	
