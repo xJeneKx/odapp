@@ -1,7 +1,6 @@
 /*jslint node: true */
 'use strict';
 const conf = require('ocore/conf.js');
-const eventBus = require('ocore/event_bus.js');
 const storage = require('ocore/storage.js');
 const db = require('ocore/db.js');
 const mail = require('ocore/mail.js');
@@ -144,6 +143,7 @@ module.exports = {
 };
 
 if(!conf.useExternalFullNode) {
+	const eventBus = require('ocore/event_bus.js');
 	eventBus.on('my_transactions_became_stable', async function (arrUnits) {
 		console.log('units that affect watched addresses: ' + arrUnits.join(', '));
 		for (let unit of arrUnits)

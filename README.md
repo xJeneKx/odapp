@@ -6,7 +6,7 @@
 Install node.js, clone the repository, then
 
 ### 1 step
-open package.json file and change name to name of the hub node
+If you want to use the database of another full node running on the same host (instead of syncing our own), open package.json file and change the package name to the name of that node (e.g. "obyte-hub", "obyte-relay", etc).
 
 ### 2 step
 ```sh
@@ -16,13 +16,13 @@ cp .env.mainnet .env
 <br>
 
 > [!IMPORTANT]
-> Before run, read the text below
+> Before running, read the text below
 
-## If you don't have a Obyte node
-open .env file and change the line to "EXTERNAL_FULL_NODE=0"
+## If you don't have an Obyte node on the same host
+Open .env file and change `EXTERNAL_FULL_NODE` to 0. Then, we'll sync our own full node.
 
-## If you are using a [obyte-hub](https://github.com/byteball/obyte-hub)
-open .env file and change the line to "USE_SQLITE_FOR_ASSET_METADATA=1"
+## If you are using an [obyte-hub](https://github.com/byteball/obyte-hub) running on the same host
+Open .env file and change `USE_SQLITE_FOR_ASSET_METADATA` to 1.
 
 ## Run
 ```sh
