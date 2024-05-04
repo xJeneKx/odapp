@@ -1,10 +1,10 @@
 const conf = require('ocore/conf.js');
-if (!conf.useExternalRelay) {
+if (!conf.useExternalFullNode) {
 	require('./relay.js');
 } else {
 	require('./mocks');
 	
-	if(!conf.useSQLiteForAssets) {
+	if (!conf.useSQLiteForAssetMetadata) {
 		require('./src/services/assetMetadata').initInMemory();
 	}
 }

@@ -33,7 +33,7 @@ async function getAssetMetadata(asset) {
 	}
 	
 	let rows;
-	if (conf.useExternalRelay && !conf.useSQLiteForAssets) {
+	if (conf.useExternalFullNode && !conf.useSQLiteForAssetMetadata) {
 		rows = [getAssetMetadataFromMemory(asset)];
 	} else {
 		rows = await db.query('SELECT metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset=?', [asset]);

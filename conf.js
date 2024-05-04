@@ -48,7 +48,7 @@ exports.trustedRegistries = {
 	'O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ': { name: 'DTR', allow_updates: true },
 };
 
-exports.useExternalRelay = !!(process.env.EXTERNAL_RELAY && parseInt(process.env.EXTERNAL_RELAY));
-exports.useSQLiteForAssets = !!(process.env.USE_SQLITE_FOR_ASSETS && parseInt(process.env.USE_SQLITE_FOR_ASSETS));
+exports.useExternalFullNode = !!(process.env.EXTERNAL_FULL_NODE && parseInt(process.env.EXTERNAL_FULL_NODE));
+exports.useSQLiteForAssetMetadata = !!(process.env.USE_SQLITE_FOR_ASSET_METADATA && parseInt(process.env.USE_SQLITE_FOR_ASSET_METADATA));
 
 console.log('finished relay conf');

@@ -19,10 +19,10 @@ cp .env.mainnet .env
 > Before run, read the text below
 
 ## If you don't have a Obyte node
-open .env file and change the line to "ONLY_API=0"
+open .env file and change the line to "EXTERNAL_FULL_NODE=0"
 
 ## If you are using a [obyte-hub](https://github.com/byteball/obyte-hub)
-open .env file and change the line to "USE_SQLITE_FOR_ASSETS=1"
+open .env file and change the line to "USE_SQLITE_FOR_ASSET_METADATA=1"
 
 ## Run
 ```sh

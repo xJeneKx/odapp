@@ -10,7 +10,7 @@ const validationUtils = require('ocore/validation_utils.js');
 const arrRegistryAddresses = Object.keys(conf.trustedRegistries);
 const assetsWithMetadata = new Map();
 
-if (!conf.useExternalRelay) {
+if (!conf.useExternalFullNode) {
 	const network = require('ocore/network.js');
 	network.setWatchedAddresses(arrRegistryAddresses);
 }
@@ -143,7 +143,7 @@ module.exports = {
 	initInMemory,
 };
 
-if(!conf.useExternalRelay) {
+if(!conf.useExternalFullNode) {
 	eventBus.on('my_transactions_became_stable', async function (arrUnits) {
 		console.log('units that affect watched addresses: ' + arrUnits.join(', '));
 		for (let unit of arrUnits)
