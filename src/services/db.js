@@ -5,6 +5,11 @@ const pathToDB = require('ocore/desktop_app.js').getAppDataDir() + '/byteball.sq
 const db = new sqlite3.Database(pathToDB, sqlite3.OPEN_READONLY);
 
 function query(sql, params, cb) {
+	if (typeof params === 'function') {
+		cb = params;
+		params = [];
+	}
+	
 	if (!cb) {
 		return new Promise((resolve) => {
 			query(sql, params, (rows) => {
