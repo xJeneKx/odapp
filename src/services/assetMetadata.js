@@ -9,14 +9,9 @@ const validationUtils = require('ocore/validation_utils.js');
 const arrRegistryAddresses = Object.keys(conf.trustedRegistries);
 const assetsWithMetadata = new Map();
 
-if (!conf.useExternalFullNode) {
-	const network = require('ocore/network.js');
-	network.setWatchedAddresses(arrRegistryAddresses);
-}
-
-function handlePotentialAssetMetadataUnit(unit, inMemory = false, cb) {
+function handlePotentialAssetMetadataUnit(unit, cb) {
 	if (!cb)
-		return new Promise(resolve => handlePotentialAssetMetadataUnit(unit, inMemory, resolve));
+		return new Promise(resolve => handlePotentialAssetMetadataUnit(unit, resolve));
 	storage.readJoint(db, unit, {
 		ifNotFound: function(){
 			throw Error('unit '+unit+' not found');
@@ -72,23 +67,13 @@ function handlePotentialAssetMetadataUnit(unit, inMemory = false, cb) {
 						db.query('SELECT name, registry_address FROM asset_metadata WHERE asset=?', [payload.asset], rows => {
 							if (rows.length > 0 && !registry.allow_updates)
 								return sendBugEmail('registry '+registry_address+' attempted to register asset '+payload.asset+' again, old name '+rows[0].name+' by '+rows[0].registry_address+', new name '+payload.name);
-							var verb = registry.allow_updates ? 'REPLACE' : 'INSERT';
-							if (inMemory) {
-								assetsWithMetadata.set(payload.asset, {
-									metadata_unit: unit, 
-									registry_address, 
-									suffix,
-								});
-								cb();
-							} else {
-								db.query(
-									verb + ' INTO asset_metadata (asset, metadata_unit, registry_address, suffix, name, decimals) VALUES (?,?,?, ?,?,?)',
-									[payload.asset, unit, registry_address, suffix, payload.name, payload.decimals],
-									() => {
-										cb();
-									}
-								);
-							}
+
+							assetsWithMetadata.set(payload.asset, {
+								metadata_unit: unit, 
+								registry_address, 
+								suffix,
+							});
+							cb();
 						});
 					});
 				});
@@ -102,7 +87,7 @@ async function scanPastMetadataUnits(){
 	let arrUnits = rows.map(row => row.unit);
 
 	for (let unit of arrUnits)
-		await handlePotentialAssetMetadataUnit(unit, true);
+		await handlePotentialAssetMetadataUnit(unit);
 	
 	return rows[rows.length-1].rowid;
 }
@@ -114,7 +99,7 @@ async function scanLastMetadataUnits(rowid){
 	let arrUnits = rows.map(row => row.unit);
 
 	for (let unit of arrUnits)
-		await handlePotentialAssetMetadataUnit(unit, true);
+		await handlePotentialAssetMetadataUnit(unit);
 	
 	return rows.length === 0 ? rowid : rows[rows.length-1].rowid;
 }
@@ -141,13 +126,3 @@ module.exports = {
 	getAssetsMetadataFromMemory,
 	initInMemory,
 };
-
-if(!conf.useExternalFullNode) {
-	const eventBus = require('ocore/event_bus.js');
-	eventBus.on('my_transactions_became_stable', async function (arrUnits) {
-		console.log('units that affect watched addresses: ' + arrUnits.join(', '));
-		for (let unit of arrUnits)
-			await handlePotentialAssetMetadataUnit(unit);
-	});
-}
-

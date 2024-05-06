@@ -2,7 +2,6 @@
 'use strict';
 const conf = require('ocore/conf.js');
 const myWitnesses = require('ocore/my_witnesses.js');
-require('./src/services/assetMetadata');
 
 function replaceConsoleLog(){ 
 	const clog = console.log;

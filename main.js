@@ -3,10 +3,10 @@ if (!conf.useExternalFullNode) {
 	require('./relay.js');
 } else {
 	require('./mocks');
-	
-	if (!conf.useSQLiteForAssetMetadata) {
-		require('./src/services/assetMetadata').initInMemory();
-	}
+}
+
+if (!conf.useSQLiteForAssetMetadata) {
+	require('./src/services/assetMetadata').initInMemory();
 }
 
 
