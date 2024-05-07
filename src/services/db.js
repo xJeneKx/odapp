@@ -18,7 +18,7 @@ function query(sql, params, cb) {
 		});
 	}
 	
-	db.all(sql, ...params, (err, rows) => {
+	db.all(sql, ...params.flat(), (err, rows) => {
 		cb(rows);
 	});
 }

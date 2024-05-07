@@ -6,7 +6,7 @@ if (!conf.useExternalFullNode) {
 }
 
 if (!conf.useSQLiteForAssetMetadata) {
-	require('./src/services/assetMetadata').initInMemory();
+	require('./src/services/assetMetadata').initializeMetadataAndSetUpdateInterval();
 }
 
 
