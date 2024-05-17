@@ -7,6 +7,7 @@ const validationUtils = require('ocore/validation_utils.js');
 
 const arrRegistryAddresses = Object.keys(conf.trustedRegistries);
 const assetsWithMetadata = new Map();
+const assocNameToRegistryAddress = new Map();
 
 function handlePotentialAssetMetadataUnit(unit, cb) {
 	if (!cb)
@@ -44,14 +45,40 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 			let payload = arrAssetMetadataPayloads[0];
 			if ('decimals' in payload && !validationUtils.isNonnegativeInteger(payload.decimals))
 				return log('invalid decimals in asset metadata of unit '+unit);
+			let suffix = null;
 			db.query('SELECT 1 FROM assets WHERE unit=?', [payload.asset], rows => {
 				if (rows.length === 0)
 					return log('asset '+payload.asset+' not found');
+				
+				const metaByName = assocNameToRegistryAddress.get(payload.name) || [];
+				if (metaByName.length && metaByName.find(m => m !== registry_address)) {
+					suffix = registry.name;
+				}
+				
+				if (metaByName && metaByName.length > 0 && !registry.allow_updates) {
+					let bSame = (rows[0].asset === payload.asset);
+					if (bSame)
+						return log('asset '+payload.asset+' already registered by the same registry '+registry_address+' by the same name '+payload.name);
+					else
+						return log('registry '+registry_address+' attempted to register the same name '+payload.name+' under another asset '+payload.asset+' while the name is already assigned to '+rows[0].asset);
+				}
+				
+				if (assetsWithMetadata.has(payload.asset) && !registry.allow_updates)
+					return log('registry '+registry_address+' attempted to register asset '+payload.asset+' again, old name '+rows[0].name+' by '+rows[0].registry_address+', new name '+payload.name);
+				
 				assetsWithMetadata.set(payload.asset, {
 					metadata_unit: unit,
 					registry_address,
-					suffix: null,
+					suffix,
+					asset: payload.asset,
+					name: payload.name,
+					decimals: payload.decimals,
 				});
+				
+				if (!metaByName.includes(registry_address)) {
+					assocNameToRegistryAddress.set(payload.name, [...metaByName, registry_address]);
+				}
+				
 				cb();
 			});
 		}
@@ -85,7 +112,13 @@ function getAssetMetadataFromMemory(asset) {
 }
 
 function getAssetsMetadataFromMemory(assets) {
-	return assets.map(asset => assetsWithMetadata.get(asset));
+	const fromMemory = assets.map(asset => assetsWithMetadata.get(asset));
+	const result = {};
+	fromMemory.forEach(v => {
+		result[v.asset] = v;
+	});
+	
+	return result;
 }
 
 module.exports = {
