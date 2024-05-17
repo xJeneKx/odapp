@@ -51,9 +51,9 @@ module.exports = async function (body) {
 	case 'getAssetsMetadata':
 		return getAssetsMetadata(body.assets);
 	case 'getAssetBySymbol':
-		return getAssetBySymbol(body.symbol);
+		return getAssetBySymbol(body.symbol, body.registryAddress);
 	case 'getAssetBySymbols':
-		return getAssetBySymbols(body.symbols); 
+		return getAssetBySymbols(body.symbols, body.registryAddress); 
 	default:
 		return {
 			error: 'unknown type'

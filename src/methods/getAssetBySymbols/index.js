@@ -3,7 +3,7 @@ const kv = require('../../services/kv.js');
 const assetBySymbolCache = require('../../cacheClasses/assetBySymbolCache');
 const { parseStateVar } = require('../../services/stateVars');
 
-async function getAssetBySymbols(symbols) {
+async function getAssetBySymbols(symbols, registryAddress) {
 	if (!symbols || !Array.isArray(symbols)) {
 		return {
 			error: 'arg symbols not found or not an array'
@@ -38,7 +38,11 @@ async function getAssetBySymbols(symbols) {
 		return symbolsInCache;
 	}
 	
-	const keys = symbols.map(symbol => 'st\n' + registry_address + '\n' + `s2a_${symbol}`);
+	if (!registryAddress) {
+		registryAddress = registry_address;
+	}
+	
+	const keys = symbols.map(symbol => 'st\n' + registryAddress + '\n' + `s2a_${symbol}`);
 	const assetsFromKV = await kv.getMany(keys);
 	const result = {};
 	assetsFromKV.forEach((asset, i) => {

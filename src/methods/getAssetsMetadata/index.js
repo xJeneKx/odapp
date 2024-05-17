@@ -47,8 +47,6 @@ async function getAssetsMetadata(assets) {
 		return true;
 	});
 	
-	console.log('assets', assets, assetsInCache);
-	
 	if (assets.length === 0)
 		return assetsInCache;
 	
