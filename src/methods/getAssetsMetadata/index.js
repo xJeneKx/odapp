@@ -1,4 +1,6 @@
 const conf = require('ocore/conf');
+const { isStringOfLength } = require('ocore/validation_utils');
+const constants = require('ocore/constants');
 const db = require('../../services/db');
 const { getJoints } = require('../getJoints');
 const assetMetadataCache = require('../../cacheClasses/assetMetadata');
@@ -27,7 +29,14 @@ async function getAssetsMetadata(assets) {
 				decimals:9,
 				name: 'GBYTE'
 			};
+			return false;
 		}
+		
+		if (!isStringOfLength(asset, constants.HASH_LENGTH)) {
+			return false;
+		}
+		
+		if (!conf.useSQLiteForAssetMetadata) return true; // cache is not used in this case
 		
 		const inCache = assetMetadataCache.getValue(asset);
 		if (inCache) {
@@ -42,12 +51,13 @@ async function getAssetsMetadata(assets) {
 		return assetsInCache;
 	
 	
-	let rows;
 	if (!conf.useSQLiteForAssetMetadata) {
-		rows = getAssetsMetadataFromMemory(assets);
-	} else {
-		rows = await db.query(`SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
+		const result = getAssetsMetadataFromMemory(assets);
+		return result ? { ...assetsInCache, ...result } : assetsInCache;
 	}
+	
+	const rows = await db.query(`SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
+	
 	
 	if (rows.length === 0)
 		return assetsInCache;

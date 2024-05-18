@@ -13,12 +13,6 @@ async function getAssetMetadata(asset) {
 		};
 	}
 	
-	if (!isStringOfLength(asset, constants.HASH_LENGTH)) {
-		return {
-			error: 'bad asset: '+asset
-		};
-	}
-	
 	if (['base', 'gbyte', 'bytes'].includes(asset.toLowerCase())) {
 		return {
 			asset:	'base',
@@ -27,17 +21,27 @@ async function getAssetMetadata(asset) {
 		};
 	}
 	
+	if (!isStringOfLength(asset, constants.HASH_LENGTH)) {
+		return {
+			error: 'bad asset: '+asset
+		};
+	}
+	
+	if (!conf.useSQLiteForAssetMetadata) {
+		const result = getAssetMetadataFromMemory(asset);
+		if (result) {
+			return result;
+		}
+		
+		return { error: 'no metadata' };
+	}
+	
 	const inCache = assetMetadataCache.getValue(asset);
 	if (inCache) {
 		return inCache;
 	}
 	
-	let rows;
-	if (!conf.useSQLiteForAssetMetadata) {
-		rows = [getAssetMetadataFromMemory(asset)];
-	} else {
-		rows = await db.query('SELECT metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset=?', [asset]);
-	}
+	const  rows = await db.query('SELECT metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset=?', [asset]);
 	
 	if (rows.length === 0)
 		return { error: 'no metadata' };
