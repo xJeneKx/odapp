@@ -8,6 +8,7 @@ const validationUtils = require('ocore/validation_utils.js');
 const arrRegistryAddresses = Object.keys(conf.trustedRegistries);
 const assetsWithMetadata = new Map();
 const assocNameToRegistryAddress = new Map();
+const assocNameWithRegistryAddressToAsset = {};
 
 function handlePotentialAssetMetadataUnit(unit, cb) {
 	if (!cb)
@@ -66,6 +67,20 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				if (assetsWithMetadata.has(payload.asset) && !registry.allow_updates)
 					return log('registry '+registry_address+' attempted to register asset '+payload.asset+' again, old name '+rows[0].name+' by '+rows[0].registry_address+', new name '+payload.name);
 				
+				if (assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`]) {
+					if (!registry.allow_updates)
+						return log('name with registry '+registry_address+' already registered by another asset '+assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`]);
+					
+					const asset = assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`];
+					const savedAsset = assetsWithMetadata.get(asset);
+					
+					if (savedAsset.name === payload.name) {
+						assetsWithMetadata.delete(asset);
+						delete assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`];
+					}
+				}
+				
+				
 				assetsWithMetadata.set(payload.asset, {
 					metadata_unit: unit,
 					registry_address,
@@ -74,6 +89,8 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 					name: payload.name,
 					decimals: payload.decimals,
 				});
+				
+				assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`] = payload.asset;
 				
 				if (!metaByName.includes(registry_address)) {
 					assocNameToRegistryAddress.set(payload.name, [...metaByName, registry_address]);
