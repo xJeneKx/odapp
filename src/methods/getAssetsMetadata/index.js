@@ -2,7 +2,6 @@ const conf = require('ocore/conf');
 const { isStringOfLength } = require('ocore/validation_utils');
 const constants = require('ocore/constants');
 const db = require('../../services/db');
-const { getJoints } = require('../getJoints');
 const assetMetadataCache = require('../../cacheClasses/assetMetadata');
 const { getAssetsMetadataFromMemory } = require('../../services/assetMetadata');
 
@@ -56,30 +55,17 @@ async function getAssetsMetadata(assets) {
 		return result ? { ...assetsInCache, ...result } : assetsInCache;
 	}
 	
-	const rows = await db.query(`SELECT asset, metadata_unit, registry_address, suffix FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
+	const rows = await db.query(`SELECT metadata_unit, registry_address, suffix, asset, name, decimals FROM asset_metadata WHERE asset IN (${db.In(assets)})`, [assets]);
 	
 	
 	if (rows.length === 0)
 		return assetsInCache;
 	
-	const rowByUnit = {};
-	
-	for (const row of rows) {
-		rowByUnit[row.metadata_unit] = row;
-	}
-	
-	const joints = await getJoints(Object.keys(rowByUnit));
-	
 	const result = {};
 	
-	for (const joint of joints) {
-		const metadata = joint.unit.messages.find(
-			(item) => item.app === 'data'
-		);
-		const row = rowByUnit[joint.unit.unit];
-		const tmpResult = { ...row, ...metadata.payload };
-		result[row.asset] = tmpResult;
-		assetMetadataCache.setValue(row.asset, tmpResult);
+	for (const row of rows) {
+		result[row.asset] = row;
+		assetMetadataCache.setValue(row.asset, row);
 	}
 	
 	return { ...assetsInCache, ...result };
