@@ -22,11 +22,6 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				console.log(msg);
 				cb();
 			};
-			
-			const crash = msg => {
-				console.error(msg);
-				throw 1;
-			};
 			let objUnit = objJoint.unit;
 			let arrAuthorAddresses = objUnit.authors.map(author => author.address);
 			if (arrAuthorAddresses.length !== 1)
@@ -65,9 +60,9 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				if (metaByCurrentRegistry.length > 0 && !registry.allow_updates) {
 					let bSame = (metaByCurrentRegistry[0].asset === payload.asset);
 					if (bSame)
-						return crash('asset '+payload.asset+' already registered by the same registry '+registry_address+' by the same name '+payload.name);
+						return log('asset '+payload.asset+' already registered by the same registry '+registry_address+' by the same name '+payload.name);
 					else
-						return crash('registry '+registry_address+' attempted to register the same name '+payload.name+' under another asset '+payload.asset+' while the name is already assigned to '+metaByCurrentRegistry[0].asset);
+						return log('registry '+registry_address+' attempted to register the same name '+payload.name+' under another asset '+payload.asset+' while the name is already assigned to '+metaByCurrentRegistry[0].asset);
 				}
 				
 				if (assetsWithMetadata.has(payload.asset) && !registry.allow_updates)
