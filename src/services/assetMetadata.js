@@ -22,6 +22,11 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				console.log(msg);
 				cb();
 			};
+			
+			const crash = msg => {
+				console.error(msg);
+				throw 1;
+			};
 			let objUnit = objJoint.unit;
 			let arrAuthorAddresses = objUnit.authors.map(author => author.address);
 			if (arrAuthorAddresses.length !== 1)
@@ -52,16 +57,17 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 					return log('asset '+payload.asset+' not found');
 				
 				const metaByName = assocNameToRegistryAddress.get(payload.name) || [];
-				if (metaByName.length && metaByName.find(m => m !== registry_address)) {
+				if (metaByName.length && metaByName.find(m => m.registry_address !== registry_address)) {
 					suffix = registry.name;
 				}
 				
-				if (metaByName && metaByName.length > 0 && !registry.allow_updates) {
-					let bSame = (rows[0].asset === payload.asset);
+				const metaByCurrentRegistry = metaByName.find(m => m.registry_address === registry_address) || [];
+				if (metaByCurrentRegistry.length > 0 && !registry.allow_updates) {
+					let bSame = (metaByCurrentRegistry[0].asset === payload.asset);
 					if (bSame)
-						return log('asset '+payload.asset+' already registered by the same registry '+registry_address+' by the same name '+payload.name);
+						return crash('asset '+payload.asset+' already registered by the same registry '+registry_address+' by the same name '+payload.name);
 					else
-						return log('registry '+registry_address+' attempted to register the same name '+payload.name+' under another asset '+payload.asset+' while the name is already assigned to '+rows[0].asset);
+						return crash('registry '+registry_address+' attempted to register the same name '+payload.name+' under another asset '+payload.asset+' while the name is already assigned to '+metaByCurrentRegistry[0].asset);
 				}
 				
 				if (assetsWithMetadata.has(payload.asset) && !registry.allow_updates)
@@ -92,8 +98,11 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				
 				assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`] = payload.asset;
 				
-				if (!metaByName.includes(registry_address)) {
-					assocNameToRegistryAddress.set(payload.name, [...metaByName, registry_address]);
+				if (!metaByName.find(v => v.registry_address === registry_address)) {
+					assocNameToRegistryAddress.set(payload.name, [...metaByName, {
+						asset: payload.asset, 
+						registry_address, 
+					}]);
 				}
 				
 				cb();
