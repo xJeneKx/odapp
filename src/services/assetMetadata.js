@@ -93,11 +93,18 @@ function handlePotentialAssetMetadataUnit(unit, cb) {
 				
 				assocNameWithRegistryAddressToAsset[`${payload.name}_${registry_address}`] = payload.asset;
 				
-				if (!metaByName.find(v => v.registry_address === registry_address)) {
+				const index = metaByName.findIndex(v => v.registry_address === registry_address);
+				if (index === -1) {
 					assocNameToRegistryAddress.set(payload.name, [...metaByName, {
 						asset: payload.asset, 
 						registry_address, 
 					}]);
+				} else {
+					const v = assocNameToRegistryAddress.get(payload.name);
+					v[index] = {
+						asset: payload.asset,
+						registry_address,
+					};
 				}
 				
 				cb();
