@@ -27,20 +27,48 @@ var db = rocksdb(path, { readOnly: true }, function (err) {
 if (!db)
 	throw Error('no rocksdb instance');
 
-module.exports = {
-	get: function(key, cb){
-		db.get(key, function(err, val){
-			if (err){
-				if (err.notFound)
-					return cb();
-				throw Error('get '+key+' failed: '+err);
+function get(key, cb, retry){
+	db.get(key, function(err, val){
+		if (err){
+			if (err.notFound){
+				if (!retry) {
+					db.close(() => {
+						db.open(() => {
+							get(key, cb, true);	
+						});
+					});
+					return;
+				}
+				return cb();
 			}
-			cb(val);
-		});
-	},
+				
+			throw Error('get '+key+' failed: '+err);
+		}
+		cb(val);
+	});
+}
+
+
+function getMany(keys, cb, retry){
+	db.getMany(keys, (err, val) => {
+		const i = val.findIndex(v => v === undefined);
+		if (i !== -1 && !retry) {
+			db.close(() => {
+				db.open(() => {
+					getMany(keys, cb, true);
+				});
+			});
+			return;
+		}
+		cb(false, val);
+	});
+}
+
+module.exports = {
+	get,
 	getMany(keys) {
 		return new Promise(resolve => {
-			db.getMany(keys, (err, val) => {
+			getMany(keys, (err, val) => {
 				resolve(val);
 			});
 		});
