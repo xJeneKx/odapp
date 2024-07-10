@@ -1,6 +1,7 @@
 /*jslint node: true */
 var fs = require('fs');
 var rocksdb = require('level-rocksdb');
+const eventBus = require('ocore/event_bus');
 var app_data_dir = require('ocore/desktop_app.js').getAppDataDir();
 var path = app_data_dir + '/rocksdb';
 
@@ -27,40 +28,68 @@ var db = rocksdb(path, { readOnly: true }, function (err) {
 if (!db)
 	throw Error('no rocksdb instance');
 
+let dbIsClosed = false;
+
+function reOpenDB(cb) {
+	dbIsClosed = true;
+	db.close(() => {
+		db.open(() => {
+			dbIsClosed = false;
+			eventBus.emit('dbIsOpen');
+			
+			if(cb) cb();
+		});
+	});
+}
+
+function waitIfClosed(cb) {
+	if (!dbIsClosed) {
+		return cb();
+	}
+	
+	eventBus.once('dbIsOpen', cb);
+}
+
+
+setInterval(() => {
+	reOpenDB();
+}, 1000 * 60);
+
+
 function get(key, cb, retry){
-	db.get(key, function(err, val){
-		if (err){
-			if (err.notFound){
-				if (!retry) {
-					db.close(() => {
-						db.open(() => {
+	waitIfClosed(() => {
+		db.get(key, function(err, val){
+			if (err){
+				if (err.notFound){
+					if (!retry) {
+						reOpenDB(() => {
 							get(key, cb, true);	
 						});
-					});
-					return;
+						return;
+					}
+					return cb();
 				}
-				return cb();
-			}
 				
-			throw Error('get '+key+' failed: '+err);
-		}
-		cb(val);
+				throw Error('get '+key+' failed: '+err);
+			}
+			cb(val);
+		});
 	});
 }
 
 
 function getMany(keys, cb, retry){
-	db.getMany(keys, (err, val) => {
-		const i = val.findIndex(v => v === undefined);
-		if (i !== -1 && !retry) {
-			db.close(() => {
-				db.open(() => {
+	waitIfClosed(() => {
+		db.getMany(keys, (err, val) => {
+			const i = val.findIndex(v => v === undefined);
+			if (i !== -1 && !retry) {
+				reOpenDB(() => {
 					getMany(keys, cb, true);
 				});
-			});
-			return;
-		}
-		cb(false, val);
+				return;
+			}
+			cb(false, val);
+		});
 	});
 }
 
