@@ -140,10 +140,19 @@ function getAssetMetadataFromMemory(asset) {
 }
 
 function getAssetsMetadataFromMemory(assets) {
-	const fromMemory = assets.map(asset => assetsWithMetadata.get(asset));
+	const fromMemory = assets.map(asset => {
+		return {
+			asset,
+			meta: assetsWithMetadata.get(asset),
+		};
+	});
 	const result = {};
 	fromMemory.forEach(v => {
-		result[v.asset] = v;
+		if(!v.meta) {
+			result[v.asset] = { error: 'no metadata' };
+			return;
+		} 
+		result[v.asset] = v.meta;
 	});
 	
 	return result;
