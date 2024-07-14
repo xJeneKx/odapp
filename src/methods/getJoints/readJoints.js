@@ -21,7 +21,12 @@ async function readJoints(units) {
 	
 	const keys = units.map(unit => `j\n${unit}`);
 	const jointsFromKv = await kv.getMany(keys);
-	const objJoints = jointsFromKv.map(JSON.parse);
+	const objJoints = jointsFromKv.map((v, i) => {
+		if (!v) {
+			return { error: { joint_not_found: units[i] } };
+		}
+		return JSON.parse(v);
+	});
 	
 	const rows = await db.query('SELECT unit, main_chain_index, ' + db.getUnixTimestamp('creation_date') + ` AS timestamp FROM units WHERE unit IN (${db.In(units)})`, [units]);
 	const objRows = {};
@@ -33,6 +38,8 @@ async function readJoints(units) {
 	});
 	
 	objJoints.forEach(objJoint => {
+		if (objJoint.error) return;
+		
 		const row = objRows[objJoint.unit.unit];
 		if (objJoint.unit.version === versionWithoutTimestamp)
 			objJoint.unit.timestamp = parseInt(row.timestamp);

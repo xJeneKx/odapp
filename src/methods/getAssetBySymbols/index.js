@@ -47,6 +47,13 @@ async function getAssetBySymbols(symbols, registryAddress) {
 	const result = {};
 	assetsFromKV.forEach((asset, i) => {
 		const k = symbols[i];
+		if (!asset) {
+			result[k] = {
+				'error': 'symbol not found'
+			};	
+			return;	
+		}
+		
 		const _asset = parseStateVar(asset);
 		assetBySymbolCache.setValue(k, _asset);
 		result[k] = _asset;
