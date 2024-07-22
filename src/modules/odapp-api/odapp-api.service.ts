@@ -152,17 +152,19 @@ export default class ODappApiService {
     }) as Promise<AssetsMetadataResponse | ErrorResponse>;
   }
 
-  getAssetBySymbol(symbol: string): Promise<AssetBySymbolResponse | ErrorResponse> {
+  getAssetBySymbol(symbol: string, registryAddress?: string): Promise<AssetBySymbolResponse | ErrorResponse> {
     return this.networkClientService.request({
       type: 'getAssetBySymbol',
       symbol,
+      registryAddress,
     }) as Promise<AssetBySymbolResponse | ErrorResponse>;
   }
 
-  getAssetBySymbols(symbols: string[]): Promise<AssetBySymbolsResponse | ErrorResponse> {
+  getAssetBySymbols(symbols: string[], registryAddress?: string): Promise<AssetBySymbolsResponse | ErrorResponse> {
     return this.networkClientService.request({
       type: 'getAssetBySymbols',
       symbols,
+      registryAddress,
     }) as Promise<AssetBySymbolsResponse | ErrorResponse>;
   }
 }
