@@ -1,6 +1,7 @@
 {
   "name": "odapp",
-  "version": "0.1.8",
+  "version": "0.1.10",
+  "description": "Library for DApps on Obyte",
   "type": "module",
   "files": [
     "dist"

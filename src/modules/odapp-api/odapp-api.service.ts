@@ -14,6 +14,7 @@ import type {
   StateVarsResponse
 } from "../../interfaces/client-responses.interface.ts";
 import { NetworkClientService } from "../network-client/network-client.service.ts";
+import {ExecuteGetterParams} from "../../interfaces/executeGetter.interface.ts";
 
 /**
  * Initializes a new instance of the ODappApiService.
@@ -166,5 +167,12 @@ export default class ODappApiService {
       symbols,
       registryAddress,
     }) as Promise<AssetBySymbolsResponse | ErrorResponse>;
+  }
+
+  executeGetter(params: ExecuteGetterParams): Promise<any | ErrorResponse> {
+    return this.networkClientService.request({
+      type: 'executeGetter',
+      ...params,
+    });
   }
 }
