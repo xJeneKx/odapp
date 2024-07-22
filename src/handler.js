@@ -14,6 +14,7 @@ const { getAssetMetadata } = require('./methods/getAssetMetadata');
 const { getAssetsMetadata } = require('./methods/getAssetsMetadata');
 const { getAssetBySymbol } = require('./methods/getAssetBySymbol');
 const { getAssetBySymbols } = require('./methods/getAssetBySymbols');
+const { executeGetter } = require('./methods/executeGetter');
 
 module.exports = async function (body) {
 	const validResult = validateBody(body);
@@ -54,6 +55,8 @@ module.exports = async function (body) {
 		return getAssetBySymbol(body.symbol, body.registryAddress);
 	case 'getAssetBySymbols':
 		return getAssetBySymbols(body.symbols, body.registryAddress); 
+	case 'executeGetter':
+		return executeGetter(body.address, body.getter, body.args);
 	default:
 		return {
 			error: 'unknown type'
