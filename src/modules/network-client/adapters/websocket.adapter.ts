@@ -51,7 +51,13 @@ export class WebSocketAdapter implements BaseAdapter {
   }
 
   #messageHandler(event: { data: string }) {
-    const data = JSON.parse(event.data);
+    let data;
+    try {
+      data = JSON.parse(event.data);
+    } catch (e) {
+      data = { result: event.data }; 
+    }
+    
     const id = data.id;
 
     if (this.#tagToHandler[id]) {

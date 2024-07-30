@@ -23,15 +23,19 @@ export class HttpAdapter implements BaseAdapter {
       },
       body: JSON.stringify(data)
     });
+  
+    try {
+      const r = await result.json();
+      if (r.error) {
+        return Promise.reject({
+          method: data.type,
+          error: r.error,
+        });
+      }
 
-    const r = await result.json();
-    if (r.error) {
-      return Promise.reject({
-        method: data.type,
-        error: r.error,
-      }); 
+      return r;
+    } catch (e) {
+      return result.text();
     }
-    
-    return r;
   }
 }
