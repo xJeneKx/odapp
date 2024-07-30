@@ -23,8 +23,9 @@ export class HttpAdapter implements BaseAdapter {
       },
       body: JSON.stringify(data)
     });
-  
-    try {
+    const contentType = result.headers.get("content-type");
+    
+    if (contentType && contentType.includes('application/json')) {
       const r = await result.json();
       if (r.error) {
         return Promise.reject({
@@ -34,8 +35,8 @@ export class HttpAdapter implements BaseAdapter {
       }
 
       return r;
-    } catch (e) {
-      return result.text();
     }
+    
+    return result.text();
   }
 }
