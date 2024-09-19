@@ -25,7 +25,7 @@ import {ExecuteGetterParams} from "../../interfaces/executeGetter.interface.ts";
 export default class ODappApiService {
   private networkClientService: NetworkClientService;
 
-  constructor(baseUrl: string, useRestClient = false) {
+  constructor(baseUrl: string, useRestClient = false, wsQueueTimeout = 2 * 60) {
     if (!baseUrl) {
       baseUrl = 'https://odapp.aa-dev.net';
     }
@@ -34,7 +34,7 @@ export default class ODappApiService {
       baseUrl = baseUrl.slice(0, -1);
     }
     
-    this.networkClientService = new NetworkClientService(baseUrl, useRestClient);
+    this.networkClientService = new NetworkClientService(baseUrl, useRestClient, wsQueueTimeout);
   }
 
   getJoint(unit: string): Promise<JointResponse | ErrorResponse> {

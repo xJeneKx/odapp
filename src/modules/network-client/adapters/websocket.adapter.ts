@@ -14,17 +14,20 @@ if (typeof window !== 'undefined') {
 
 export class WebSocketAdapter implements BaseAdapter {
   readonly #baseUrl: string;
+  readonly #wsQueueTimeout: number;
 
   #ws: any;
-  #queue = [];
+  #queue: { msg: any; time: number; }[] = [];
   #tagToHandler: kvFunction = {};
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, wsQueueTimeout: number) {
     if (baseUrl.startsWith('http://') || baseUrl.startsWith('https://')) {
       baseUrl = baseUrl.replace('http://', 'ws://')
           .replace('https://', 'wss://');
     }
+    
     this.#baseUrl = baseUrl;
+    this.#wsQueueTimeout = wsQueueTimeout;
 
     this.#connectWebSocket();
   }
@@ -43,8 +46,14 @@ export class WebSocketAdapter implements BaseAdapter {
   }
 
   #openHandler() {
-    this.#queue.forEach((msg) => {
-      this.#ws.send(JSON.stringify(msg));
+    this.#queue.forEach((value) => {
+      if (this.#wsQueueTimeout 
+          && value.time > Date.now() - this.#wsQueueTimeout
+      ) {
+          return
+      }
+      
+      this.#ws.send(JSON.stringify(value.msg));
     });
 
     this.#queue = [];
@@ -103,7 +112,7 @@ export class WebSocketAdapter implements BaseAdapter {
 
     if (!ready) {
       // @ts-ignore
-      this.#queue.push(msg);
+      this.#queue.push({msg, time: Date.now()});
       return new Promise((resolve, reject) => {
         this.#tagToHandler[id] = { resolve, reject, method: data.type };
       });
