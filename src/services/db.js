@@ -23,12 +23,9 @@ function query(sql, params, cb) {
 	});
 }
 
-function In(arr) {
+_db.query = query;
+_db.In = function (arr) {
 	return `${arr.map(() => '?').join(',')}`;
-}
-
-module.exports = {
-	query,
-	In,
-	getUnixTimestamp: _db.getUnixTimestamp,
 };
+
+module.exports = _db;
